@@ -1,5 +1,8 @@
 #define _POSIX_C_SOURCE 200809L
 #define _DEFAULT_SOURCE
+#ifdef __APPLE__
+#define _DARWIN_C_SOURCE 1
+#endif
 #include "royal_inspector/system_info.h"
 #include <stdio.h>
 #include <string.h>
