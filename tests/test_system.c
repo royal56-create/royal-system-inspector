@@ -1,3 +1,6 @@
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
 #include "royal_inspector/system_info.h"
 #include <assert.h>
 #include <stdio.h>
