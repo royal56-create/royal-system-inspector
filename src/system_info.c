@@ -12,6 +12,10 @@
 #include <sys/statvfs.h>
 #include <sys/utsname.h>
 #include <unistd.h>
+#ifdef __APPLE__
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#endif
 #endif
 static void cp(char *d,size_t n,const char *s){if(n)snprintf(d,n,"%s",s?s:"Unknown");}
 #ifndef _WIN32
@@ -33,6 +37,16 @@ static unsigned int processes(void){
  while((e=readdir(d))){const char *p=e->d_name;int digits=*p!=0;while(*p){if(*p<'0'||*p>'9'){digits=0;break;}++p;}if(digits)++n;}
  closedir(d);return n;
 }
+static unsigned int logical_cpus(void){
+#ifdef __APPLE__
+ int count=0;size_t size=sizeof count;
+ if(sysctlbyname("hw.logicalcpu",&count,&size,NULL,0)==0&&count>0)return (unsigned int)count;
+ return 1;
+#else
+ long count=sysconf(_SC_NPROCESSORS_ONLN);
+ return count>0?(unsigned int)count:1;
+#endif
+}
 #endif
 int rsi_collect_system_info(rsi_system_info *i){
  if(!i)return -1;memset(i,0,sizeof *i);
@@ -50,7 +64,7 @@ int rsi_collect_system_info(rsi_system_info *i){
  struct utsname u;char host[128]="Unknown";struct statvfs v;
  if(uname(&u)==0){cp(i->os_name,sizeof i->os_name,u.sysname);cp(i->architecture,sizeof i->architecture,u.machine);}else{cp(i->os_name,sizeof i->os_name,"Unix-like");cp(i->architecture,sizeof i->architecture,"Unknown");}
  if(gethostname(host,sizeof host-1)==0)cp(i->hostname,sizeof i->hostname,host);
- cpu_model(i->cpu_model,sizeof i->cpu_model);{long n=sysconf(_SC_NPROCESSORS_ONLN);i->logical_cpus=n>0?(unsigned int)n:1;}
+ cpu_model(i->cpu_model,sizeof i->cpu_model);i->logical_cpus=logical_cpus();
  memory(i);if(statvfs("/",&v)==0){i->total_disk_bytes=(uint64_t)v.f_blocks*v.f_frsize;i->available_disk_bytes=(uint64_t)v.f_bavail*v.f_frsize;i->has_disk=1;}
  {FILE *f=fopen("/proc/uptime","r");double s;if(f){if(fscanf(f,"%lf",&s)==1&&s>=0){i->uptime_seconds=(unsigned long)s;i->has_uptime=1;}fclose(f);}}
  i->process_count=processes();i->has_process_count=1;
