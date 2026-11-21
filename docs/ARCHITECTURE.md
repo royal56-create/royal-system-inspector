@@ -1,12 +1,13 @@
 # Architecture
 
-The code is split into a small portable core and a command-line front end.
+Royal System Inspector is a C17 command-line application organized into a small system-information library and a CLI.
 
-- `include/rsi.h`: public data structures and function contracts.
-- `src/system.c`: OS, architecture, processor count, and supported memory metrics.
-- `src/disk.c`: filesystem capacity using read-only OS APIs.
-- `src/analyze.c`: streaming byte/line/word counter.
-- `src/hash.c`: streaming FNV-1a 64-bit fingerprint.
-- `src/main.c`: argument parsing and output.
+- `include/royal_inspector/system_info.h`: shared data model and function declarations.
+- `src/system_info.c`: platform-specific collection of OS, host, CPU, memory, disk, uptime, and process-count information.
+- `src/report.c`: JSON, CSV, and plain-text report writers.
+- `src/main.c`: command parsing and terminal output.
+- `tests/test_system.c`: smoke test for system-information collection.
+- `CMakeLists.txt`: build, test, and install configuration.
+- `.github/workflows/ci.yml`: Ubuntu and Windows build/test workflow.
 
-The implementation uses C17 and avoids shell execution. Platform-specific code is isolated behind compile-time checks. Unsupported metrics are reported as unavailable rather than fabricated.
+Linux uses read-only interfaces such as `/proc`, `uname`, and `statvfs`. Windows uses documented system APIs, including GlobalMemoryStatusEx, GetDiskFreeSpaceEx, and Toolhelp process enumeration. The initial release reports only metrics actually collected; unsupported metrics are explicitly identified rather than estimated.
