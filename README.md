@@ -44,3 +44,7 @@ Reports are written to the current directory as system-report.json, system-repor
 
 ## License
 MIT. See LICENSE.
+
+## Educational use, safety and responsibility
+
+This repository is provided for educational, demonstration, and informational purposes. Review code and commands before use. Use it only with files, devices, repositories, and networks you own or are explicitly authorized to access. You are responsible for keeping backups, protecting personal information, and following applicable laws and policies. Use is at your own risk. The project is provided “as is” without warranties, to the maximum extent permitted by applicable law. Nothing in this notice excludes liability, rights, or obligations that cannot legally be excluded. This notice does not grant permission to access or test third-party systems.
